@@ -1,0 +1,19 @@
+Usage examples:
+
+Generate upload sequence:
+cat path/to/image/image.bin | ./generate.pl --action=u --address=0x40000000 --size=<filesize of image in bytes -1> > <destination file>
+
+Generate download sequence:
+./generate.pl --action=d --address=0x40000000 --size=0x10 > download
+
+Generate go sequence:
+perl -e 'print "g\x40\x00\x00\x00"' > go
+Goes to 0x40000000
+
+Check generated stuff:
+cat path/to/image/image.bin | ./generate.pl --action=u --address=0x40000000 --size=<filesize of image in bytes -1> | hexdump -C
+or
+./generate.pl --action=d --address=0x40000000 --size=0x10 | hexdump -C
+or
+perl -e 'print "g\x40\x00\x00\x00"' | hexdump -C
+
