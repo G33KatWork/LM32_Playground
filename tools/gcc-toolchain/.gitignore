@@ -1,0 +1,9 @@
+dirs
+download
+extract
+binutils
+gcc
+newlib
+gdb
+sources
+lm32-elf
