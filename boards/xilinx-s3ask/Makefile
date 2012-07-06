@@ -59,6 +59,8 @@ SYNCLEAN+=system.bld system.lso system.ncd system.ngm system.srp
 SYNCLEAN+=system.bit system_signalbrowser.* system-routed_pad.tx
 SYNCLEAN+=system.map system_summary.xml timing.twr
 SYNCLEAN+=system-routed* system_usage* system.ngc param.opt netlist.lst
+SYNCLEAN+=*.xrpt *.html *.xwbt *.save *.log
+SYNCLEAN+=_xmsgs xlnx_auto_0_xdb
 SYNCLEAN+=xst system.prj
 
 USAGE_DEPTH=0
