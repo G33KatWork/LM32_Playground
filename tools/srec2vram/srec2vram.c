@@ -9,7 +9,7 @@ uint32_t rambase;
 uint32_t ramsize;
 uint8_t  *ram;
 
-//#define HAVE_STRNDUP
+#define HAVE_STRNDUP
 #ifndef HAVE_STRNDUP
 char* strndup(const char* s, size_t n) {
        char* ret = malloc(n + 1);
