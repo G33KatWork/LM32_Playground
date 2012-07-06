@@ -1,0 +1,12 @@
+*.d
+*.o
+*.map
+*.lst
+*.srec
+*.ram
+firmware/boot0-serial/image
+firmware/boot-ram-test/image
+firmware/ddr-phaser/image
+firmware/gdb-test/image
+firmware/hw-test/image
+tools/srec2vram/srec2vram
