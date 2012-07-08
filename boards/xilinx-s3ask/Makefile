@@ -2,7 +2,6 @@
 VINCDIR=                                  \
 	-I../../rtl/wb_conbus                 \
 	-I../../rtl/lm32                      \
-	-I../../rtl/wb_ddr                    \
 	-I../../sim/ddr
 
 SYN_SRC=
@@ -11,8 +10,7 @@ SIM_SRC=                                  \
 	system_tb.v                           \
 	../../sim/unisims/BUFG.v              \
 	../../sim/unisims/DCM.v               \
-	../../sim/unisims/FDDRRSE.v           \
-	../../sim/ddr/ddr.v                   \
+	../../sim/unisims/FDDRRSE.v
 
 SRC=                                      \
 	system.v                              \
@@ -35,16 +33,6 @@ SRC=                                      \
 	../../rtl/lm32/lm32_dcache.v          \
 	../../rtl/lm32/lm32_ram.v             \
 	../../rtl/wb_bram/wb_bram.v           \
-	../../rtl/wb_ddr/wb_ddr.v             \
-	../../rtl/wb_ddr/ddr_ctrl.v           \
-	../../rtl/wb_ddr/ddr_clkgen.v         \
-	../../rtl/wb_ddr/ddr_rpath.v          \
-	../../rtl/wb_ddr/ddr_wpath.v          \
-	../../rtl/wb_ddr/ddr_init.v           \
-	../../rtl/wb_ddr/ddr_pulse78.v        \
-	../../rtl/wb_ddr/async_fifo.v         \
-	../../rtl/wb_ddr/gray_counter.v       \
-	../../rtl/wb_ddr/dpram.v              \
 	../../rtl/wb_uart/wb_uart.v           \
 	../../rtl/wb_timer/wb_timer.v         \
 	../../rtl/wb_gpio/wb_gpio.v           \
@@ -132,6 +120,9 @@ timing: system-routed.twr
 usage: system-routed.xdl
 	xdlanalyze.pl system-routed.xdl $(USAGE_DEPTH)
 
+jtag: system.bit
+	impact -batch impact.batch
+
 ####################################################################
 # final targets
 
@@ -141,4 +132,4 @@ usage: system-routed.xdl
 clean:
 	rm -Rf $(SYNCLEAN) $(SIMCLEAN)
 
-.PHONY: clean view
+.PHONY: clean view jtag
