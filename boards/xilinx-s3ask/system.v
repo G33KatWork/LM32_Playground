@@ -3,7 +3,6 @@
 //
 // Top Level Design for the Xilinx Spartan 3A(N)-700 Starter Kit
 //---------------------------------------------------------------------------
-`include "ddr_include.v"
 
 module system
 #(
@@ -17,31 +16,17 @@ module system
 //	parameter   ddr_phase_shift  = -41,
 //	parameter   ddr_wait200_init = 26
 ) (
-	input                   clk, 
-	// DDR connection
-	//output                  ddr_clk,
-	//output                  ddr_clk_n,
-	//input                   ddr_clk_fb,
-	//output                  ddr_ras_n,
-	//output                  ddr_cas_n,
-	//output                  ddr_we_n,
-	//output                  ddr_cke,
-	//output                  ddr_cs_n,
-	//output       [  `A_RNG] ddr_a,
-	//output       [ `BA_RNG] ddr_ba,
-	//inout        [ `DQ_RNG] ddr_dq,
-	//inout        [`DQS_RNG] ddr_dqs,
-	//output       [ `DM_RNG] ddr_dm,
-	// Debug 
+	input                   clk,
+	// Debug
 	output            [7:0] led,
 	input             [3:0] btn,
 	input             [3:0] sw,
 	input             [2:0] rot,
 	// Uart
-	input                   uart_rxd, 
+	input                   uart_rxd,
 	output                  uart_txd
 );
-	
+
 wire         rst;
 
 //------------------------------------------------------------------
@@ -50,7 +35,7 @@ wire         rst;
 wire         gnd   =  1'b0;
 wire   [3:0] gnd4  =  4'h0;
 wire  [31:0] gnd32 = 32'h00000000;
- 
+
 wire [31:0]  lm32i_adr,
              lm32d_adr,
              uart0_adr,
@@ -58,7 +43,6 @@ wire [31:0]  lm32i_adr,
              gpio0_adr,
              bram0_adr,
              bram1_adr;
-             //ddr0_adr;
 
 wire [31:0]  lm32i_dat_r,
              lm32i_dat_w,
@@ -74,8 +58,6 @@ wire [31:0]  lm32i_dat_r,
              bram0_dat_w,
              bram1_dat_r,
              bram1_dat_w;
-             //ddr0_dat_w,
-             //ddr0_dat_r;
 
 wire [3:0]   lm32i_sel,
              lm32d_sel,
@@ -84,7 +66,6 @@ wire [3:0]   lm32i_sel,
              gpio0_sel,
              bram0_sel,
              bram1_sel;
-             //ddr0_sel;
 
 wire         lm32i_we,
              lm32d_we,
@@ -93,7 +74,6 @@ wire         lm32i_we,
              gpio0_we,
              bram0_we,
              bram1_we;
-             //ddr0_we;
 
 wire         lm32i_cyc,
              lm32d_cyc,
@@ -102,7 +82,6 @@ wire         lm32i_cyc,
              gpio0_cyc,
              bram0_cyc,
              bram1_cyc;
-             //ddr0_cyc;
 
 wire         lm32i_stb,
              lm32d_stb,
@@ -111,7 +90,6 @@ wire         lm32i_stb,
              gpio0_stb,
              bram0_stb,
              bram1_stb;
-             //ddr0_stb;
 
 wire         lm32i_ack,
              lm32d_ack,
@@ -120,7 +98,6 @@ wire         lm32i_ack,
              gpio0_ack,
              bram0_ack,
              bram1_ack;
-             //ddr0_ack;
 
 wire         lm32i_rty,
              lm32d_rty;
@@ -156,7 +133,7 @@ wb_conbus_top #(
 	.s1_addr_w ( 3 ),
 	.s1_addr   ( 3'h5 ),        // flash0
 	.s27_addr_w( 15 ),
-	.s2_addr   ( 15'h0000 ),    // bram0 
+	.s2_addr   ( 15'h0000 ),    // bram0
 	.s3_addr   ( 15'h7000 ),    // uart0
 	.s4_addr   ( 15'h7001 ),    // timer0
 	.s5_addr   ( 15'h7002 ),    // gpio0
@@ -225,16 +202,6 @@ wb_conbus_top #(
 	.m7_stb_i(  gnd    ),
 
 	// Slave0
-	//.s0_dat_i(  ddr0_dat_r   ),
-	//.s0_dat_o(  ddr0_dat_w   ),
-	//.s0_adr_o(  ddr0_adr     ),
-	//.s0_sel_o(  ddr0_sel     ),
-	//.s0_we_o(   ddr0_we      ),
-	//.s0_cyc_o(  ddr0_cyc     ),
-	//.s0_stb_o(  ddr0_stb     ),
-	//.s0_ack_i(  ddr0_ack     ),
-	//.s0_err_i(  gnd    ),
-	//.s0_rty_i(  gnd    ),
 	.s0_dat_i(  bram1_dat_r   ),
 	.s0_dat_o(  bram1_dat_w   ),
 	.s0_adr_o(  bram1_adr     ),
@@ -307,7 +274,7 @@ wb_conbus_top #(
 );
 
 //---------------------------------------------------------------------------
-// LM32 CPU 
+// LM32 CPU
 //---------------------------------------------------------------------------
 lm32_cpu lm0 (
 	.clk_i(  clk  ),
@@ -342,7 +309,7 @@ lm32_cpu lm0 (
 	.D_ERR_I(  lm32d_err    ),
 	.D_RTY_I(  lm32d_rty    )
 );
-	
+
 //---------------------------------------------------------------------------
 // Block RAM
 //---------------------------------------------------------------------------
@@ -383,54 +350,6 @@ wb_bram_milk #(
 );
 
 //---------------------------------------------------------------------------
-// ddr0
-//---------------------------------------------------------------------------
-//wire ddr0_ps_ready, ddr0_ps_up, ddr0_ps_down;
-
-//wb_ddr #(
-//	.clk_freq(     clk_freq         ),
-//	.clk_multiply( ddr_clk_multiply ),
-//	.clk_divide(   ddr_clk_divide   ),
-//	.phase_shift(  ddr_phase_shift  ),
-//	.wait200_init( ddr_wait200_init )
-//) ddr0 (
-//	.clk(     clk    ),
-//	.reset(   rst  ),
-	// DDR Ports
-//	.ddr_clk(      ddr_clk     ),
-//	.ddr_clk_n(    ddr_clk_n   ),
-//	.ddr_clk_fb(   ddr_clk_fb  ),
-//	.ddr_ras_n(    ddr_ras_n   ),
-//	.ddr_cas_n(    ddr_cas_n   ),
-//	.ddr_we_n(     ddr_we_n    ),
-//	.ddr_cke(      ddr_cke     ),
-//	.ddr_cs_n(     ddr_cs_n    ),
-//	.ddr_a(        ddr_a       ),
-//	.ddr_ba(       ddr_ba      ),
-//	.ddr_dq(       ddr_dq      ),
-//	.ddr_dqs(      ddr_dqs     ),
-//	.ddr_dm(       ddr_dm      ),
-	// FML (FastMemoryLink)
-//	.wb_cyc_i(    ddr0_cyc     ),
-//	.wb_stb_i(    ddr0_stb     ),
-//	.wb_we_i(     ddr0_we      ),
-//	.wb_adr_i(    ddr0_adr     ),
-//	.wb_dat_o(    ddr0_dat_r   ),
-//	.wb_dat_i(    ddr0_dat_w   ),
-//	.wb_sel_i(    ddr0_sel     ),
-//	.wb_ack_o(    ddr0_ack     ),
-	// phase shifting
-//	.ps_ready(   ddr0_ps_ready ),
-//	.ps_up(      ddr0_ps_up    ),
-//	.ps_down(    ddr0_ps_down  ),
-	// logic probe
-//	.probe_clk(    probe_clk   ),
-//	.probe_sel(    'b0         )
-//	.probe(        probe       )
-//);
-
-
-//---------------------------------------------------------------------------
 // uart0
 //---------------------------------------------------------------------------
 wire uart0_rxd;
@@ -450,7 +369,7 @@ wb_uart #(
 	.wb_cyc_i( uart0_cyc ),
 	.wb_we_i(  uart0_we ),
 	.wb_sel_i( uart0_sel ),
-	.wb_ack_o( uart0_ack ), 
+	.wb_ack_o( uart0_ack ),
 //	.intr(       uart0_intr ),
 	.uart_rxd( uart0_rxd ),
 	.uart_txd( uart0_txd )
@@ -472,7 +391,7 @@ wb_timer #(
 	.wb_cyc_i( timer0_cyc   ),
 	.wb_we_i(  timer0_we    ),
 	.wb_sel_i( timer0_sel   ),
-	.wb_ack_o( timer0_ack   ), 
+	.wb_ack_o( timer0_ack   ),
 	.intr(     timer0_intr  )
 );
 
@@ -494,7 +413,7 @@ wb_gpio gpio0 (
 	.wb_cyc_i( gpio0_cyc    ),
 	.wb_we_i(  gpio0_we     ),
 	.wb_sel_i( gpio0_sel    ),
-	.wb_ack_o( gpio0_ack    ), 
+	.wb_ack_o( gpio0_ack    ),
 	.intr(     gpio0_intr   ),
 	// GPIO
 	.gpio_in(  gpio0_in     ),
@@ -568,13 +487,4 @@ assign gpio0_in[15: 8] = (sw[1]) ? {rot,btn} : 8'b0;
 assign gpio0_in[31:17] = 15'b0;
 assign gpio0_in[ 7: 0] =  8'b0;
 
-
-//----------------------------------------------------------------------------
-// Wire DDR phase shifting signals
-//----------------------------------------------------------------------------
-//assign gpio0_in[16]  = ddr0_ps_ready;          // ddr0 phase shifter 
-//assign ddr0_ps_up    = gpio0_out[16];          // ddr0 phase shifter
-//assign ddr0_ps_down  = gpio0_out[17];          // ddr0 phase shifter
-
-
-endmodule 
+endmodule

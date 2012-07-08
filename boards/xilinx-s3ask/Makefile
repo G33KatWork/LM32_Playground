@@ -1,8 +1,7 @@
 
 VINCDIR=                                  \
 	-I../../rtl/wb_conbus                 \
-	-I../../rtl/lm32                      \
-	-I../../sim/ddr
+	-I../../rtl/lm32
 
 SYN_SRC=
 
