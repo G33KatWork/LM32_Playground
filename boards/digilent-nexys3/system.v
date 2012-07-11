@@ -19,8 +19,38 @@ module system
 	input             [3:0] sw,
 	// Uart
 	input                   uart_rxd,
-	output                  uart_txd
+	output                  uart_txd,
+
+	// Memory (shared between parallel flash and PSRAM)
+	output                  MemOE,
+	output                  MemWR,
+	//output                  MemAdv,
+	//output                  MemWait,
+	//output                  MemClk,
+	//output                  MemCRE,
+	output           [1:23] MemAdr,
+	inout            [0:15] MemDb,
+
+	//RAM-only control signals
+	output                  RamCS,
+	output                  RamUB,
+	output                  RamLB
+
+	//Parallel fLash-only signals
+	/*output                  FlashCS,
+	output                  FlashRp,*/
+
+	//Serial flash signals
+	/*output                  QuadSpiFlashCS,
+	output                  QuadSpiFlashSck,
+	inout                   QuadSpiFlashDB*/
 );
+
+//Unused memory lines
+/*assign MemClk = 0;
+assign MemAdv = 0;
+assign MemCre = 0;*/
+
 
 wire         rst;
 
@@ -37,7 +67,7 @@ wire [31:0]  lm32i_adr,
              timer0_adr,
              gpio0_adr,
              bram0_adr,
-             bram1_adr;
+             sram0_adr;
 
 wire [31:0]  lm32i_dat_r,
              lm32i_dat_w,
@@ -51,8 +81,8 @@ wire [31:0]  lm32i_dat_r,
              gpio0_dat_w,
              bram0_dat_r,
              bram0_dat_w,
-             bram1_dat_r,
-             bram1_dat_w;
+             sram0_dat_r,
+             sram0_dat_w;
 
 wire [3:0]   lm32i_sel,
              lm32d_sel,
@@ -60,7 +90,7 @@ wire [3:0]   lm32i_sel,
              timer0_sel,
              gpio0_sel,
              bram0_sel,
-             bram1_sel;
+             sram0_sel;
 
 wire         lm32i_we,
              lm32d_we,
@@ -68,7 +98,7 @@ wire         lm32i_we,
              timer0_we,
              gpio0_we,
              bram0_we,
-             bram1_we;
+             sram0_we;
 
 wire         lm32i_cyc,
              lm32d_cyc,
@@ -76,7 +106,7 @@ wire         lm32i_cyc,
              timer0_cyc,
              gpio0_cyc,
              bram0_cyc,
-             bram1_cyc;
+             sram0_cyc;
 
 wire         lm32i_stb,
              lm32d_stb,
@@ -84,7 +114,7 @@ wire         lm32i_stb,
              timer0_stb,
              gpio0_stb,
              bram0_stb,
-             bram1_stb;
+             sram0_stb;
 
 wire         lm32i_ack,
              lm32d_ack,
@@ -92,7 +122,7 @@ wire         lm32i_ack,
              timer0_ack,
              gpio0_ack,
              bram0_ack,
-             bram1_ack;
+             sram0_ack;
 
 wire         lm32i_rty,
              lm32d_rty;
@@ -197,14 +227,14 @@ wb_conbus_top #(
 	.m7_stb_i(  gnd    ),
 
 	// Slave0
-	.s0_dat_i(  bram1_dat_r   ),
-	.s0_dat_o(  bram1_dat_w   ),
-	.s0_adr_o(  bram1_adr     ),
-	.s0_sel_o(  bram1_sel     ),
-	.s0_we_o(   bram1_we      ),
-	.s0_cyc_o(  bram1_cyc     ),
-	.s0_stb_o(  bram1_stb     ),
-	.s0_ack_i(  bram1_ack     ),
+	.s0_dat_i(  sram0_dat_r   ),
+	.s0_dat_o(  sram0_dat_w   ),
+	.s0_adr_o(  sram0_adr     ),
+	.s0_sel_o(  sram0_sel     ),
+	.s0_we_o(   sram0_we      ),
+	.s0_cyc_o(  sram0_cyc     ),
+	.s0_stb_o(  sram0_stb     ),
+	.s0_ack_i(  sram0_ack     ),
 	.s0_err_i(  gnd    ),
 	.s0_rty_i(  gnd    ),
 	// Slave1
@@ -326,22 +356,30 @@ wb_bram #(
 );
 
 //---------------------------------------------------------------------------
-// Block RAM2 for testing, until I have DDR2 support
+// sram0
 //---------------------------------------------------------------------------
-wb_bram_milk #(
-	.adr_width( 12 )
-) bram1 (
-	.clk_i(  clk  ),
-	.rst_i(  rst  ),
-	//
-	.wb_adr_i(  bram1_adr    ),
-	.wb_dat_o(  bram1_dat_r  ),
-	.wb_dat_i(  bram1_dat_w  ),
-	.wb_sel_i(  bram1_sel    ),
-	.wb_stb_i(  bram1_stb    ),
-	.wb_cyc_i(  bram1_cyc    ),
-	.wb_ack_o(  bram1_ack    ),
-	.wb_we_i(   bram1_we     )
+wb_sram16 #(
+	.adr_width(  23  ),
+	.latency(    7   )
+) sram0 (
+	.clk(         clk           ),
+	.reset(       rst           ),
+	// Wishbone
+	.wb_cyc_i(    sram0_cyc     ),
+	.wb_stb_i(    sram0_stb     ),
+	.wb_we_i(     sram0_we      ),
+	.wb_adr_i(    sram0_adr     ),
+	.wb_dat_o(    sram0_dat_r   ),
+	.wb_dat_i(    sram0_dat_w   ),
+	.wb_sel_i(    sram0_sel     ),
+	.wb_ack_o(    sram0_ack     ),
+	// SRAM
+	.sram_adr(    MemAdr        ),
+	.sram_dat(    MemDb         ),
+	.sram_be_n(   {RamUB, RamLB}),
+	.sram_ce_n(   RamCS         ),
+	.sram_oe_n(   MemOE         ),
+	.sram_we_n(   MemWR         )
 );
 
 //---------------------------------------------------------------------------

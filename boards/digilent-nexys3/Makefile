@@ -32,6 +32,7 @@ SRC=                                      \
 	../../rtl/lm32/lm32_dcache.v          \
 	../../rtl/lm32/lm32_ram.v             \
 	../../rtl/wb_bram/wb_bram.v           \
+	../../rtl/wb_sram/wb_sram16.v         \
 	../../rtl/wb_uart/wb_uart.v           \
 	../../rtl/wb_timer/wb_timer.v         \
 	../../rtl/wb_gpio/wb_gpio.v           \
@@ -97,7 +98,7 @@ system.ngd: system.ngc system.ucf
 	ngdbuild -uc system.ucf system.ngc
 
 system.ncd: system.ngd
-	map $(SMARTGUIDE) system.ngd
+	map $(SMARTGUIDE) -w system.ngd
 
 system-routed.ncd: system.ncd
 	par $(SMARTGUIDE) -ol high -w system.ncd system-routed.ncd
