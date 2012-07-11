@@ -2,7 +2,6 @@
 //
 //----------------------------------------------------------------------------
 `timescale 1 ns / 100 ps
-//`include "ddr_include.v"
 
 module system_tb;
 
@@ -10,9 +9,7 @@ module system_tb;
 // Parameter (may differ for physical synthesis)
 //----------------------------------------------------------------------------
 parameter tck              = 20;       // clock period in ns
-parameter uart_baud_rate   = 1152000;  // uart baud rate for simulation 
-//parameter ddr_phase_shift  = 100;      //
-//parameter ddr_wait200_init = 26;       //
+parameter uart_baud_rate   = 1152000;  // uart baud rate for simulation
 
 parameter clk_freq = 1000000000 / tck; // Frequenzy in HZ
 //----------------------------------------------------------------------------
@@ -66,7 +63,7 @@ begin
 	if (rx_avail && ~rx_ack) begin
 		$display( "Reading from UART: rx_data=%h", rx_data );
 		rx_ack <= 1;
-	end else 
+	end else
 		rx_ack <= 0;
 end
 
@@ -97,51 +94,12 @@ task uart_wait_tx;
 	end
 endtask
 
-//----------------------------------------------------------------------------
-// DDR connection
-//----------------------------------------------------------------------------
-/*wire            ddr_clk;
-wire            ddr_clk_n;
-wire            ddr_clk_fb;
-wire            ddr_ras_n;
-wire            ddr_cas_n;
-wire            ddr_we_n;
-wire            ddr_cke;
-wire            ddr_cs_n;
-wire [  `A_RNG] ddr_a;
-wire [ `BA_RNG] ddr_ba;
-wire [ `DQ_RNG] ddr_dq;
-wire [`DQS_RNG] ddr_dqs;
-wire [ `DM_RNG] ddr_dm;*/
-
-//----------------------------------------------------------------------------
-// Micron DDR Memory
-//----------------------------------------------------------------------------
-/*ddr mt46v16m16 (
-	.Dq(     ddr_dq    ),
-	.Dqs(    ddr_dqs   ),
-	.Addr(   ddr_a     ),
-	.Ba(     ddr_ba    ),
-	.Clk(    ddr_clk   ),
-	.Clk_n(  ddr_clk_n ),
-	.Cke(    ddr_cke   ),
-	.Cs_n(   ddr_cs_n  ),
-	.Ras_n(  ddr_ras_n ),
-	.Cas_n(  ddr_cas_n ),
-	.We_n(   ddr_we_n  ),
-	.Dm(     ddr_dm    )
-);
-
-assign ddr_clk_fb = ddr_clk;*/
-
 //------------------------------------------------------------------
-// Decive Under Test 
+// Decive Under Test
 //------------------------------------------------------------------
 system #(
 	.clk_freq(           clk_freq         ),
 	.uart_baud_rate(     uart_baud_rate   )
-/*	.ddr_phase_shift(    ddr_phase_shift  ),
-	.ddr_wait200_init(   ddr_wait200_init )*/
 ) dut  (
 	.clk(          clk    ),
 	// Debug
@@ -152,20 +110,6 @@ system #(
 	// Uart
 	.uart_rxd(  uart_rxd  ),
 	.uart_txd(  uart_txd  )
-	// DDR Ports
-/*	.ddr_clk(      ddr_clk     ),
-	.ddr_clk_n(    ddr_clk_n   ),
-	.ddr_clk_fb(   ddr_clk_fb  ),
-	.ddr_ras_n(    ddr_ras_n   ),
-	.ddr_cas_n(    ddr_cas_n   ),
-	.ddr_we_n(     ddr_we_n    ),
-	.ddr_cke(      ddr_cke     ),
-	.ddr_cs_n(     ddr_cs_n    ),
-	.ddr_a(        ddr_a       ),
-	.ddr_ba(       ddr_ba      ),
-	.ddr_dq(       ddr_dq      ),
-	.ddr_dqs(      ddr_dqs     ),
-	.ddr_dm(       ddr_dm      )*/
 );
 
 assign btn = { 3'b0, reset };
@@ -216,8 +160,8 @@ end
 always @(posedge clk)
 begin
 	if (dut.lm32d_ack) begin
-		$display( "LM32D transaction: ADR=%x WE=%b DAT=%x", 
-		            dut.lm32d_adr, dut.lm32d_we, 
+		$display( "LM32D transaction: ADR=%x WE=%b DAT=%x",
+		            dut.lm32d_adr, dut.lm32d_we,
 		            (dut.lm32d_we) ? dut.lm32d_dat_w : dut.lm32d_dat_r );
 	end
 end
@@ -226,8 +170,8 @@ end
 always @(posedge clk)
 begin
 	if (dut.lm32i_ack) begin
-		$display( "LM32I transaction: ADR=%x WE=%b DAT=%x", 
-		            dut.lm32i_adr, dut.lm32i_we, 
+		$display( "LM32I transaction: ADR=%x WE=%b DAT=%x",
+		            dut.lm32i_adr, dut.lm32i_we,
 		            (dut.lm32i_we) ? dut.lm32i_dat_w : dut.lm32i_dat_r );
 	end
 end
