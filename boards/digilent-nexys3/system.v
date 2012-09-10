@@ -7,8 +7,9 @@
 module system
 #(
 //	parameter   bootram_file     = "../../firmware/ddr-phaser/image.ram",
-	parameter   bootram_file     = "../../firmware/boot0-serial/image.ram",
+//	parameter   bootram_file     = "../../firmware/boot0-serial/image.ram",
 //	parameter   bootram_file     = "../../firmware/boot-ram-test/image.ram",
+	parameter   bootram_file     = "../../firmware/boot-dump-memory/image.ram",
 	parameter   clk_freq         = 100000000,
 	parameter   uart_baud_rate   = 115200
 ) (
@@ -28,8 +29,9 @@ module system
 	//output                  MemWait,
 	//output                  MemClk,
 	//output                  MemCRE,
-	output           [1:23] MemAdr,
-	inout            [0:15] MemDb,
+	output           [22:0] MemAdr,		//22:0 PSRAM 25:0 PCM
+	inout            [15:0] MemDb,		//15:0 Databits for PSRAM and PCM
+										//2:0  DQ[3:1] of SPI Flash
 
 	//RAM-only control signals
 	output                  RamCS,
@@ -43,7 +45,7 @@ module system
 	//Serial flash signals
 	/*output                  QuadSpiFlashCS,
 	output                  QuadSpiFlashSck,
-	inout                   QuadSpiFlashDB*/
+	inout                   QuadSpiFlashDB*/	//DB0 of SPI Flash
 );
 
 //Unused memory lines
@@ -358,9 +360,11 @@ wb_bram #(
 //---------------------------------------------------------------------------
 // sram0
 //---------------------------------------------------------------------------
+wire [1:0] sram_be_n;
+
 wb_sram16 #(
 	.adr_width(  23  ),
-	.latency(    7   )
+	.latency(    5   )				//7 may be better - 10ns clock cycle, RAM has 70ns access time
 ) sram0 (
 	.clk(         clk           ),
 	.reset(       rst           ),
@@ -374,13 +378,16 @@ wb_sram16 #(
 	.wb_sel_i(    sram0_sel     ),
 	.wb_ack_o(    sram0_ack     ),
 	// SRAM
-	.sram_adr(    MemAdr        ),
+	.sram_adr(    MemAdr[22:0]  ),
 	.sram_dat(    MemDb         ),
-	.sram_be_n(   {RamUB, RamLB}),
+	.sram_be_n(   sram_be_n     ),
 	.sram_ce_n(   RamCS         ),
 	.sram_oe_n(   MemOE         ),
 	.sram_we_n(   MemWR         )
 );
+
+assign RamLB = sram_be_n[0];
+assign RamUB = sram_be_n[1];
 
 //---------------------------------------------------------------------------
 // uart0
@@ -389,23 +396,23 @@ wire uart0_rxd;
 wire uart0_txd;
 
 wb_uart #(
-	.clk_freq( clk_freq        ),
-	.baud(     uart_baud_rate  )
+	.clk_freq(    clk_freq      ),
+	.baud(        uart_baud_rate)
 ) uart0 (
-	.clk( clk ),
-	.reset( rst ),
+	.clk(         clk           ),
+	.reset(       rst           ),
 	//
-	.wb_adr_i( uart0_adr ),
-	.wb_dat_i( uart0_dat_w ),
-	.wb_dat_o( uart0_dat_r ),
-	.wb_stb_i( uart0_stb ),
-	.wb_cyc_i( uart0_cyc ),
-	.wb_we_i(  uart0_we ),
-	.wb_sel_i( uart0_sel ),
-	.wb_ack_o( uart0_ack ),
-//	.intr(       uart0_intr ),
-	.uart_rxd( uart0_rxd ),
-	.uart_txd( uart0_txd )
+	.wb_adr_i(    uart0_adr     ),
+	.wb_dat_i(    uart0_dat_w   ),
+	.wb_dat_o(    uart0_dat_r   ),
+	.wb_stb_i(    uart0_stb     ),
+	.wb_cyc_i(    uart0_cyc     ),
+	.wb_we_i(     uart0_we      ),
+	.wb_sel_i(    uart0_sel     ),
+	.wb_ack_o(    uart0_ack     ),
+//	.intr(       uart0_intr     ),
+	.uart_rxd(    uart0_rxd     ),
+	.uart_txd(    uart0_txd     )
 );
 
 //---------------------------------------------------------------------------

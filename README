@@ -24,7 +24,7 @@ for uptodate information.
 
 1.1 Memory Map
 
-  [0x00000000,0x00000800) bram0      -- Bootloader BlockRAM 
+  [0x00000000,0x00001000) bram0      -- Bootloader BlockRAM 
   [0x40000000,0x40000000) sram0/ddr0 -- Externam RAM (size depends on actual board)
   [0x70000000,0x70010000) uart0      -- serial communication  component
   [0x70010000,0x70020000) timer0     -- 32 bit dual timer engine

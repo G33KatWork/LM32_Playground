@@ -121,7 +121,7 @@ usage: system-routed.xdl
 	xdlanalyze.pl system-routed.xdl $(USAGE_DEPTH)
 
 jtag: system.bit
-	/opt/digilent/adept/bin/djtgcfg prog -f $< -d Nexys3 -i 0
+	djtgcfg prog -f $< -d Nexys3 -i 0
 
 ####################################################################
 # final targets

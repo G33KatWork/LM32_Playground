@@ -12,6 +12,11 @@ Each directory contains a design for a supported board:
  xilinx-s3esk       Xilinx Spartan-3E Starter Kit with an xc3s500e and
                     512 Mbit DDR DRAM.
 
+ xilinx-s3ask       Xilinx Spartan-3A(N) Starter Kit. Has DDR2 RAM, but is
+                    currently not supported
+
+ digilent-nexys3    Digilent Nexys 3 Board with a Spartan 6 and 16MByte PSRAM
+
  xilinx-xupv2p   
                  
  simulation         Simulation only target which can be used to simulate 
